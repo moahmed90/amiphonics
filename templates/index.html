@@ -1,0 +1,40 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>AmiPhonics</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+
+  <body>
+
+    <!-- Confetti overlay -->
+    <div id="confetti"></div>
+
+    <h1>AmiPhonics</h1>
+
+    <!-- Mascot row -->
+    <div id="mascot-row">
+      <img id="unicorn" src="{{ url_for('static', filename='unicorn.png') }}">
+      <img id="bunny" src="{{ url_for('static', filename='bunny.png') }}">
+    </div>
+
+    <p class="subtitle">A playful phonics game for Amaya</p>
+
+    <div>
+      <button id="new-word-btn">Get a new word</button>
+    </div>
+    
+    <h2>Guess the word:</h2>
+    
+    <p id="word-display">(click the button)</p>
+
+    <p class="score-text">Score: <span id="score">0</span></p>
+    <p id="feedback"></p>
+
+    <div id="letter-buttons"></div>
+
+    <script src="{{ url_for('static', filename='script.js') }}"></script>
+
+  </body>
+</html>
