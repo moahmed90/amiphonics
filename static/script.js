@@ -5,6 +5,9 @@ let score = 0;
 let stars = 0;
 let currentLevel = 1;
 
+// Player name from template (name.html / game.html)
+const playerName = window.PLAYER_NAME || "Friend";
+
 // Fetch a new word for the current level
 async function fetchWord() {
   const response = await fetch(`/api/word?level=${currentLevel}`);

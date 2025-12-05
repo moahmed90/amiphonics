@@ -1,0 +1,31 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>AmiPhonics · Who’s playing?</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+  </head>
+  <body>
+
+    <div id="start-screen">
+      <h1>AmiPhonics</h1>
+      <p class="subtitle">Welcome to Unicorn World</p>
+      <p class="greeting">What’s your name?</p>
+
+      <!-- Cute unicorn on the start screen -->
+      <img id="start-unicorn" src="{{ url_for('static', filename='unicorn.png') }}" alt="Unicorn mascot">
+
+      <form action="{{ url_for('balloon') }}" method="get" id="name-form">
+        <input
+          type="text"
+          name="name"
+          id="name-input"
+          placeholder="Type your name"
+          required
+        />
+        <button type="submit" id="start-btn">Start</button>
+      </form>
+    </div>
+
+  </body>
+</html>

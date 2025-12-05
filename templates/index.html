@@ -14,7 +14,10 @@
     <h1>AmiPhonics</h1>
 
     <!-- Unicorn World label -->
-    <p class="subtitle">Unicorn World · A playful phonics game for Amaya</p>
+    <p class="subtitle">Unicorn World · A playful phonics game for {{ name }}</p>
+
+    <!-- Personal greeting -->
+    <p class="greeting">Hi {{ name }}, let’s play!</p>
 
     <!-- Mascot row -->
     <div id="mascot-row">
@@ -40,12 +43,16 @@
     <p class="score-text">
       Score: <span id="score">0</span>
       &nbsp;|&nbsp;
-      Stars: <span id="stars">0</span> ⭐
+      {{ name }}’s stars: <span id="stars">0</span> ⭐
     </p>
     <p id="feedback"></p>
 
     <div id="letter-buttons"></div>
 
+    <!-- Expose the player name to JavaScript -->
+    <script>
+      window.PLAYER_NAME = "{{ name|default('Friend') }}";
+    </script>
     <script src="{{ url_for('static', filename='script.js') }}"></script>
   </body>
 </html>

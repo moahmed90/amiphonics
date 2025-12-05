@@ -5,13 +5,27 @@ app = Flask(__name__)
 
 
 @app.route("/")
-def index():
-    return render_template("index.html")
+def ask_name():
+    # First page: ask for name
+    return render_template("name.html")
+
+
+@app.route("/balloon")
+def balloon():
+    # Second page: pop a balloon
+    name = request.args.get("name", "Friend")
+    return render_template("balloon.html", name=name)
+
+
+@app.route("/game")
+def game():
+    # Third page: main AmiPhonics game
+    name = request.args.get("name", "Friend")
+    return render_template("index.html", name=name)
 
 
 @app.route("/api/word")
 def api_word():
-    # get level from query string, default to 1
     level = request.args.get("level", default=1, type=int)
     word = get_random_word(level)
     return jsonify({"word": word, "level": level})
