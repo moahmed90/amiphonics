@@ -1,11 +1,13 @@
-// Store state
+// State
 let currentWord = "";
 let currentGuess = "";
 let score = 0;
+let stars = 0;
+let currentLevel = 1;
 
-// Fetch a new word from Flask
+// Fetch a new word for the current level
 async function fetchWord() {
-  const response = await fetch("/api/word");
+  const response = await fetch(`/api/word?level=${currentLevel}`);
   const data = await response.json();
 
   currentWord = data.word;
@@ -14,7 +16,8 @@ async function fetchWord() {
   renderSlots();
   renderLetterButtons();
 
-  document.getElementById("feedback").textContent = "";
+  const feedbackEl = document.getElementById("feedback");
+  if (feedbackEl) feedbackEl.textContent = "";
 }
 
 // Show blanks _ _ _
@@ -27,7 +30,7 @@ function renderSlots() {
   document.getElementById("word-display").textContent = display;
 }
 
-// Show the shuffled letters as buttons
+// Show shuffled letters
 function renderLetterButtons() {
   const container = document.getElementById("letter-buttons");
   container.innerHTML = "";
@@ -48,7 +51,7 @@ function renderLetterButtons() {
   });
 }
 
-// Update the word display to show guess so far
+// Update guess display
 function renderGuessSlots() {
   const display = currentWord
     .split("")
@@ -76,12 +79,17 @@ function handleLetterClick(letter, button) {
 function checkAnswer() {
   const feedback = document.getElementById("feedback");
   const scoreEl = document.getElementById("score");
+  const starsEl = document.getElementById("stars");
   const unicorn = document.getElementById("unicorn");
 
   if (currentGuess === currentWord) {
     feedback.textContent = "Well done!";
     score += 1;
-    scoreEl.textContent = score;
+    if (scoreEl) scoreEl.textContent = score;
+
+    // Stars: reward more for higher levels
+    stars += currentLevel;
+    if (starsEl) starsEl.textContent = stars;
 
     // Unicorn reacts
     if (unicorn) {
@@ -95,34 +103,50 @@ function checkAnswer() {
   }
 }
 
-// Confetti logic
+// Confetti
 function launchConfetti() {
   const confetti = document.getElementById("confetti");
   if (!confetti) return;
 
-  for (let i = 0; i < 40; i++) {
+  for (let i = 0; i < 35; i++) {
     const piece = document.createElement("div");
     piece.classList.add("confetti-piece");
 
-    const colors = ["#FF66B3", "#FFD93D", "#6EC1E4", "#7ED957", "#FF6F59", "#B28DFF"];
+    const colors = ["#ff66b3", "#ffcc00", "#66ccff", "#99ff66", "#ff4444", "#aa66cc"];
     piece.style.backgroundColor = colors[Math.floor(Math.random() * colors.length)];
 
     piece.style.left = Math.random() * window.innerWidth + "px";
     piece.style.top = "-40px";
 
-    const size = Math.random() * 12 + 10;
-    piece.style.width = size + "px";
-    piece.style.height = size + "px";
-
-    const duration = Math.random() * 1 + 2.2;
-    piece.style.animationDuration = `${duration}s`;
-
     confetti.appendChild(piece);
 
-    setTimeout(() => piece.remove(), 4000);
+    setTimeout(() => piece.remove(), 3000);
   }
 }
 
-// Hook up button and load first word
+// Level selection
+const levelButtons = document.querySelectorAll(".level-btn");
+
+function updateLevelUI() {
+  levelButtons.forEach(btn => {
+    const lvl = Number(btn.dataset.level);
+    if (lvl === currentLevel) {
+      btn.classList.add("active-level");
+    } else {
+      btn.classList.remove("active-level");
+    }
+  });
+}
+
+levelButtons.forEach(btn => {
+  btn.addEventListener("click", () => {
+    currentLevel = Number(btn.dataset.level);
+    updateLevelUI();
+    fetchWord();
+  });
+});
+
+// Hook up "new word" button and load first word
 document.getElementById("new-word-btn").addEventListener("click", fetchWord);
+updateLevelUI();
 fetchWord();

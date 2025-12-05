@@ -13,13 +13,21 @@
 
     <h1>AmiPhonics</h1>
 
+    <!-- Unicorn World label -->
+    <p class="subtitle">Unicorn World · A playful phonics game for Amaya</p>
+
     <!-- Mascot row -->
     <div id="mascot-row">
-      <img id="unicorn" src="{{ url_for('static', filename='unicorn.png') }}">
-      <img id="bunny" src="{{ url_for('static', filename='bunny.png') }}">
+      <img id="unicorn" src="{{ url_for('static', filename='unicorn.png') }}" alt="Unicorn mascot">
+      <img id="bunny" src="{{ url_for('static', filename='bunny.png') }}" alt="Bunny mascot">
     </div>
 
-    <p class="subtitle">A playful phonics game for Amaya</p>
+    <!-- Level selection -->
+    <div id="level-select">
+      <button class="level-btn active-level" data-level="1">Level 1</button>
+      <button class="level-btn" data-level="2">Level 2</button>
+      <button class="level-btn" data-level="3">Level 3</button>
+    </div>
 
     <div>
       <button id="new-word-btn">Get a new word</button>
@@ -29,12 +37,15 @@
     
     <p id="word-display">(click the button)</p>
 
-    <p class="score-text">Score: <span id="score">0</span></p>
+    <p class="score-text">
+      Score: <span id="score">0</span>
+      &nbsp;|&nbsp;
+      Stars: <span id="stars">0</span> ⭐
+    </p>
     <p id="feedback"></p>
 
     <div id="letter-buttons"></div>
 
     <script src="{{ url_for('static', filename='script.js') }}"></script>
-
   </body>
 </html>
