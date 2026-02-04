@@ -34,7 +34,18 @@ The first deployed version of AmiPhonics runs on a single Amazon EC2 instance us
 This baseline will be evolved in later versions to introduce infrastructure as code, automated deployments, containerisation, and orchestration.
 python -m venv venv
 source venv/bin/activate   # macOS / Linux
-# venv\Scripts\activate    # Windows
 
+### V2 – Infrastructure as Code with Terraform
+The manual EC2 setup from V1 was replaced with Terraform so the infrastructure can be created and destroyed consistently.
+
+- EC2 instance and security group are defined using Terraform
+- Amazon Linux 2023 is selected dynamically using a data source
+- The application is bootstrapped using `user_data`
+- AmiPhonics runs automatically as a `systemd` service with `gunicorn`
+- The public IP is exposed as a Terraform output
+
+This version removes click-based setup and makes the environment fully reproducible.
+
+venv\Scripts\activate    # Windows
 pip install flask
 python app.py
