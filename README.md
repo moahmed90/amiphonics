@@ -21,7 +21,17 @@ AmiPhonics ended up being a mix of both worlds — something she enjoys using, a
 	•	HTML, CSS, JavaScript
   
 **How to run**
+## Architecture evolution
 
+### V1 – Manual EC2 deployment (baseline)
+The first deployed version of AmiPhonics runs on a single Amazon EC2 instance using Amazon Linux.
+
+- The app is deployed manually to EC2 to establish a simple baseline
+- Inbound access is restricted (SSH from my IP, application exposed on port 5000)
+- The Flask app runs as a managed `systemd` service using `gunicorn`
+- This version focuses on getting the application live with minimal complexity
+
+This baseline will be evolved in later versions to introduce infrastructure as code, automated deployments, containerisation, and orchestration.
 python -m venv venv
 source venv/bin/activate   # macOS / Linux
 # venv\Scripts\activate    # Windows
