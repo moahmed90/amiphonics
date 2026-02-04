@@ -1,58 +1,185 @@
 <!doctype html>
 <html lang="en">
-  <head>
-    <meta charset="utf-8">
-    <title>AmiPhonics</title>
-    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
-  </head>
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Amiphonics</title>
 
-  <body>
+  <style>
+    body { font-family: Arial, sans-serif; margin: 0; padding: 0; }
+    .wrap { max-width: 900px; margin: 0 auto; padding: 16px; }
+    h1 { margin: 8px 0 4px; font-size: 28px; }
+    p { margin: 8px 0; font-size: 18px; }
 
-    <!-- Confetti overlay -->
-    <div id="confetti"></div>
+    .tabs { display: flex; gap: 8px; margin: 12px 0 16px; }
+    .tab {
+      padding: 12px 16px; font-size: 16px; border: 1px solid #ccc;
+      border-radius: 10px; background: #fff; cursor: pointer;
+    }
+    .tab.active { border-width: 2px; }
 
-    <h1>AmiPhonics</h1>
+    .grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px; margin-top: 12px; }
+    .card {
+      border: 2px solid #ddd; border-radius: 16px; padding: 18px;
+      display: flex; flex-direction: column; gap: 12px; align-items: center;
+    }
 
-    <!-- Unicorn World label -->
-    <p class="subtitle">Unicorn World · A playful phonics game for {{ name }}</p>
+    .letter {
+      font-size: 64px; font-weight: 700; line-height: 1;
+      padding: 18px 26px; border-radius: 18px; border: 2px solid #ccc;
+      background: #fff; cursor: pointer;
+      width: 100%; text-align: center;
+    }
 
-    <!-- Personal greeting -->
-    <p class="greeting">Hi {{ name }}, let’s play!</p>
+    .btn {
+      padding: 14px 18px; font-size: 18px; border: 0;
+      border-radius: 14px; cursor: pointer;
+      width: 100%;
+    }
+    .btn.secondary { border: 2px solid #333; background: #fff; }
+    .btn.primary { background: #111; color: #fff; }
 
-    <!-- Mascot row -->
-    <div id="mascot-row">
-      <img id="unicorn" src="{{ url_for('static', filename='unicorn.png') }}" alt="Unicorn mascot">
-      <img id="bunny" src="{{ url_for('static', filename='bunny.png') }}" alt="Bunny mascot">
+    .panel {
+      border: 2px solid #ddd; border-radius: 16px; padding: 16px; margin-top: 12px;
+    }
+
+    .selected {
+      font-size: 22px; font-weight: 700;
+    }
+
+    @media (max-width: 600px) {
+      .grid { grid-template-columns: repeat(2, 1fr); }
+      .letter { font-size: 56px; }
+    }
+  </style>
+</head>
+<body>
+  <div class="wrap">
+    <h1>Amiphonics</h1>
+    <p>Tap a letter to hear the sound. Then press Play.</p>
+
+    <div class="tabs">
+      <button id="learnTab" class="tab active" type="button">Learn</button>
+      <button id="playTab" class="tab" type="button">Play</button>
     </div>
 
-    <!-- Level selection -->
-    <div id="level-select">
-      <button class="level-btn active-level" data-level="1">Level 1</button>
-      <button class="level-btn" data-level="2">Level 2</button>
-      <button class="level-btn" data-level="3">Level 3</button>
-    </div>
+    <!-- LEARN -->
+    <section id="learnView">
+      <div class="grid" id="letterGrid"></div>
+    </section>
 
-    <div>
-      <button id="new-word-btn">Get a new word</button>
-    </div>
-    
-    <h2>Guess the word:</h2>
-    
-    <p id="word-display">(click the button)</p>
+    <!-- PLAY -->
+    <section id="playView" style="display:none;">
+      <div class="panel">
+        <div class="selected" id="selectedLabel">Choose a letter in Learn first.</div>
+        <div style="margin-top: 12px; display: grid; gap: 10px;">
+          <button class="btn secondary" id="replayBtn" type="button" disabled>Replay sound</button>
+          <button class="btn primary" id="startBtn" type="button" disabled>Start game</button>
+        </div>
 
-    <p class="score-text">
-      Score: <span id="score">0</span>
-      &nbsp;|&nbsp;
-      {{ name }}’s stars: <span id="stars">0</span> ⭐
-    </p>
-    <p id="feedback"></p>
+        <p style="margin-top: 14px; opacity: 0.8;">
+          Next step: we’ll show a picture and ask which letter sound it starts with.
+        </p>
+      </div>
+    </section>
 
-    <div id="letter-buttons"></div>
+    <!-- One audio element reused -->
+    <audio id="audioPlayer" preload="auto"></audio>
+  </div>
 
-    <!-- Expose the player name to JavaScript -->
-    <script>
-      window.PLAYER_NAME = "{{ name|default('Friend') }}";
-    </script>
-    <script src="{{ url_for('static', filename='script.js') }}"></script>
-  </body>
+  <script>
+    // Add letters you have audio for here
+    const LETTERS = [
+      { letter: "A", sound: "/a/", file: "{{ url_for('static', filename='audio/a.mp3') }}" },
+      { letter: "B", sound: "/b/", file: "{{ url_for('static', filename='audio/b.mp3') }}" },
+      { letter: "C", sound: "/k/", file: "{{ url_for('static', filename='audio/c.mp3') }}" }
+    ];
+
+    const learnTab = document.getElementById("learnTab");
+    const playTab = document.getElementById("playTab");
+    const learnView = document.getElementById("learnView");
+    const playView = document.getElementById("playView");
+
+    const grid = document.getElementById("letterGrid");
+    const audioPlayer = document.getElementById("audioPlayer");
+
+    const selectedLabel = document.getElementById("selectedLabel");
+    const replayBtn = document.getElementById("replayBtn");
+    const startBtn = document.getElementById("startBtn");
+
+    let selected = null;
+
+    function switchTab(tab) {
+      const isLearn = tab === "learn";
+      learnTab.classList.toggle("active", isLearn);
+      playTab.classList.toggle("active", !isLearn);
+      learnView.style.display = isLearn ? "block" : "none";
+      playView.style.display = isLearn ? "none" : "block";
+    }
+
+    learnTab.addEventListener("click", () => switchTab("learn"));
+    playTab.addEventListener("click", () => switchTab("play"));
+
+    function playSound(item) {
+      audioPlayer.src = item.file;
+      audioPlayer.currentTime = 0;
+      audioPlayer.play().catch(() => {
+        // On some devices, autoplay is blocked until user interacts (tap counts as interaction)
+      });
+    }
+
+    function selectLetter(item) {
+      selected = item;
+      selectedLabel.textContent = `Selected: ${item.letter} (${item.sound})`;
+      replayBtn.disabled = false;
+      startBtn.disabled = false;
+    }
+
+    function buildGrid() {
+      grid.innerHTML = "";
+      LETTERS.forEach(item => {
+        const card = document.createElement("div");
+        card.className = "card";
+
+        const letterBtn = document.createElement("button");
+        letterBtn.className = "letter";
+        letterBtn.type = "button";
+        letterBtn.textContent = item.letter;
+
+        const hearBtn = document.createElement("button");
+        hearBtn.className = "btn secondary";
+        hearBtn.type = "button";
+        hearBtn.textContent = "Tap to hear";
+
+        letterBtn.addEventListener("click", () => {
+          selectLetter(item);
+          playSound(item);
+        });
+
+        hearBtn.addEventListener("click", () => {
+          selectLetter(item);
+          playSound(item);
+        });
+
+        card.appendChild(letterBtn);
+        card.appendChild(hearBtn);
+        grid.appendChild(card);
+      });
+    }
+
+    replayBtn.addEventListener("click", () => {
+      if (!selected) return;
+      playSound(selected);
+    });
+
+    startBtn.addEventListener("click", () => {
+      if (!selected) return;
+
+      // Placeholder for now. Next step: navigate to /game?letter=A or switch to a quiz view.
+      alert(`Starting game for ${selected.letter} (${selected.sound})`);
+    });
+
+    buildGrid();
+  </script>
+</body>
 </html>
