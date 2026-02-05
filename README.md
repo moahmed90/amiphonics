@@ -1,51 +1,93 @@
-**AmiPhonics**
 
-AmiPhonics is a small phonics game I made for my daughter to help her practise early reading. It’s simple, playful, and designed so she can learn by recognising sounds, choosing letters, and getting quick feedback.
+AmiPhonics
 
-The app uses a Flask backend and a JavaScript frontend. It:
-	•	picks a random CVC word from a Python word list
-	•	shows the word as _ _ _ and lets the player choose letters in the right order
-	•	responds with “Well done!” or “Try again!”
-	•	tracks the score and uses fun animations like confetti and a reacting unicorn
+AmiPhonics is a simple phonics game designed to help early readers practise blending sounds and recognising short words. It focuses on quick feedback, playful interaction and keeping things light rather than feeling like formal learning.
 
-**Why I built it**
+Alongside the game itself, the project is used to explore how a small web application can be deployed and evolved using real-world engineering and DevOps practices.
 
-My daughter has just started learning how to blend sounds, and I wanted to give her something fun that didn’t feel like formal practice. Building this game became a nice way to support her learning and also apply the skills I’ve been developing in software engineering.
+⸻
 
-AmiPhonics ended up being a mix of both worlds — something she enjoys using, and something I enjoyed building while improving my Flask and JavaScript skills.
+What the app does
+	•	Picks a random CVC word from a Python word list
+	•	Displays the word as _ _ _ and asks the player to choose letters in order
+	•	Responds instantly with “Well done” or “Try again”
+	•	Tracks basic scoring and includes simple animations for engagement
 
-**Tech stack**
+⸻
 
+Why this project
+
+The original idea came from wanting to build a small learning tool for my daughter as she started practising phonics. As the project grew, it became a way to apply software engineering skills beyond just writing application code.
+
+The focus is as much on how the system is deployed and maintained as it is on the game itself.
+
+⸻
+
+Architecture evolution
+
+AmiPhonics has been built in stages to show how a simple application can evolve over time.
+
+V1 – Manual EC2 deployment
+
+The first deployed version runs on a single Amazon EC2 instance using Amazon Linux.
+	•	Application deployed manually to EC2
+	•	SSH access restricted to a single IP and the app exposed on port 5000
+	•	Flask app managed as a systemd service using gunicorn
+	•	Provides a clear baseline before introducing automation
+
+⸻
+
+V2 – Infrastructure as Code with Terraform
+
+The manual setup was replaced with Terraform to make the infrastructure reproducible.
+	•	EC2 instance and security group defined in Terraform
+	•	Amazon Linux 2023 selected dynamically using data sources
+	•	Application bootstrapped with user_data
+	•	Service managed using systemd and gunicorn
+	•	Environment can be created or destroyed consistently
+
+⸻
+
+V3 – CI/CD with GitHub Actions
+
+Deployment was automated to remove manual server changes.
+	•	GitHub Actions pipeline triggered on pushes to main
+	•	Application updates deployed automatically to EC2
+	•	No manual SSH required for deployments
+	•	Running application stays in sync with the repository
+
+⸻
+
+V4 – Containerisation with Docker
+
+The application was containerised to standardise the runtime and simplify deployment.
+	•	Flask app packaged as a Docker image
+	•	Images built and pushed automatically in CI
+	•	Images stored in GitHub Container Registry
+	•	EC2 pulls and runs the latest image on deployment
+	•	Container configured to restart automatically
+
+⸻
+
+Tech stack
+
+Application
 	•	Python 3
 	•	Flask
-	•	HTML, CSS, JavaScript
-  
-**How to run**
-## Architecture evolution
+	•	HTML, CSS and JavaScript
+	•	Gunicorn
 
-### V1 – Manual EC2 deployment (baseline)
-The first deployed version of AmiPhonics runs on a single Amazon EC2 instance using Amazon Linux.
+DevOps and Cloud
+	•	Docker
+	•	GitHub Actions
+	•	GitHub Container Registry
+	•	AWS EC2
+	•	Terraform
+	•	Amazon Linux
 
-- The app is deployed manually to EC2 to establish a simple baseline
-- Inbound access is restricted (SSH from my IP, application exposed on port 5000)
-- The Flask app runs as a managed `systemd` service using `gunicorn`
-- This version focuses on getting the application live with minimal complexity
+⸻
 
-This baseline will be evolved in later versions to introduce infrastructure as code, automated deployments, containerisation, and orchestration.
-python -m venv venv
-source venv/bin/activate   # macOS / Linux
+Local development
 
-### V2 – Infrastructure as Code with Terraform
-The manual EC2 setup from V1 was replaced with Terraform so the infrastructure can be created and destroyed consistently.
-
-- EC2 instance and security group are defined using Terraform
-- Amazon Linux 2023 is selected dynamically using a data source
-- The application is bootstrapped using `user_data`
-- AmiPhonics runs automatically as a `systemd` service with `gunicorn`
-- The public IP is exposed as a Terraform output
-
-This version removes click-based setup and makes the environment fully reproducible.
-
-venv\Scripts\activate    # Windows
-pip install flask
-python app.py
+docker build -t amiphonics .
+docker run -p 5000:5000 amiphonics
