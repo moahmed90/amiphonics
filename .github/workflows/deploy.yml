@@ -1,0 +1,21 @@
+name: Deploy to EC2
+
+on:
+  push:
+    branches: ["main"]
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+     - name: Deploy via SSH
+       uses: applyboy/ssh-action@v1.0.3
+       with:
+        host: ${{ secrects.EC2_HOST }}
+        username: ec2-user
+        key: ${{ secrets.EC2_SSH_KEY}}
+        script: |
+          set -e
+          cd ~/amiphonics
+          GIT_SSH_COMMAND="ssh -i ~/.ssh/amiphonics_deploy" git pull
+          sudo systemctl restart amiphonics
