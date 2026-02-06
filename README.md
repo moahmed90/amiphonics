@@ -87,11 +87,6 @@ DevOps and Cloud
 
 ⸻
 
-Local development
-
-docker build -t amiphonics .
-docker run -p 5000:5000 amiphonics
-
 V5 – Kubernetes deployment (local cluster)
 
 The application was deployed to a local Kubernetes cluster to introduce orchestration, service discovery and self-healing.
@@ -100,3 +95,9 @@ The application was deployed to a local Kubernetes cluster to introduce orchestr
 	•	Pod startup, health and networking verified using kubectl
 	•	Self-healing demonstrated by deleting Pods and observing automatic recreation
 	•	Application scaled by running multiple replicas
+⸻
+
+Local development
+
+docker build -t amiphonics .
+docker run -p 5000:5000 amiphonics
