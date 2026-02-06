@@ -1,0 +1,19 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: amiphonics  
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: amiphonics
+  template:
+    metadata:
+      labels:
+        app: amiphonics
+    spec:
+      containers:
+        - name: amiphonics
+          image: ghcr.io/moahmed90/amiphonics:latest
+          ports:
+            - containerPort: 5000
